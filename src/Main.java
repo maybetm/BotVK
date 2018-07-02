@@ -12,6 +12,7 @@ public class Main {
 
 
         new Settings().setSettings();
+        new Settings().checkFileSettings();
 
      // иначе плывёт Кодировка в терминале на windows и Linux
         System.setProperty("file.encoding","UTF-8");

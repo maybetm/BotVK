@@ -1,14 +1,21 @@
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 public class Settings {
 
+    private static String fileName = "bot.properties";
     private static String YANDEX_SPEACH_KIT = "1212";
     private static String VK_DOCS_TOKEN = "222222";
     private static String VK_MESSAGES_TOKEN = "121212";
+
+
+    public static String getFileName() {
+        return fileName;
+    }
 
     public static void setYANDEX_SPEACH_KIT(String YANDEX_SPEACH_KIT) {
         Settings.YANDEX_SPEACH_KIT = YANDEX_SPEACH_KIT;
@@ -37,6 +44,7 @@ public class Settings {
 
 
 
+
     public static void  setSettings () {
 
         /*
@@ -52,7 +60,7 @@ public class Settings {
 
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter("bot.properties", "UTF-8");
+            writer = new PrintWriter( getFileName(), "UTF-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -63,8 +71,6 @@ public class Settings {
 
         System.out.println("[setSetting]" + "\n" + "Saving settings in file \"bot.settings\"" + "\n" +
         "String config: " + jsonObject.toString());
-
-
     }
 
     public static boolean checkFileSettings () {
@@ -73,7 +79,15 @@ public class Settings {
             Проверк наличия файла настроек рядом с основным файлов
          */
 
-        return false;
+        File file = new File(getFileName());
+
+            if (file.exists()) {
+                System.out.println("[checkFileSettings]" + "\n" + "File \"bot.properties\" is finded.");
+                return true;
+            } else {
+                System.out.println("[checkFileSettings]" + "\n" + "File \"bot.properties\" is NOT finded.");
+                return false;
+            }
     }
 
     public void loadSettings () {
@@ -81,6 +95,7 @@ public class Settings {
         /*
         Загрузка настроек из файла bot.settings
          */
+
 
     }
 
