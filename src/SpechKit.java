@@ -16,7 +16,7 @@ public class SpechKit {
     private static  String accessToken = "482e86fe-3e53-4927-b8c9-8375910b83f9";
 
 
-    public static String generateVoice (String text, String speaker, String emotion,  String format, String lang) throws IOException {
+    public static void generateVoice (String text, String speaker, String emotion,  String format, String lang) throws IOException {
 
         /*
         Результатом выполнения метода должен быть аудиофайл
@@ -71,7 +71,5 @@ public class SpechKit {
             }
             System.out.println("result:" + result);
        }
-
-        return null;
     }
 }

@@ -11,6 +11,8 @@ public class Main {
     //test
 
 
+        new Settings().setSettings();
+
      // иначе плывёт Кодировка в терминале на windows и Linux
         System.setProperty("file.encoding","UTF-8");
         Field charset = null;
@@ -35,4 +37,6 @@ public class Main {
         String response =  new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),5);
         Api_vk.parseEvents(response);
     }
+
+
 }
