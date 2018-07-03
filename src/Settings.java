@@ -1,21 +1,23 @@
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.CharBuffer;
+
 
 public class Settings {
 
-    private static String fileName = "bot.properties";
-    private static String YANDEX_SPEACH_KIT = "1212";
-    private static String VK_DOCS_TOKEN = "222222";
-    private static String VK_MESSAGES_TOKEN = "121212";
+    private static final String fileName = "bot.properties";
+
+    private static String YANDEX_SPEACH_KIT;
+    private static String VK_DOCS_TOKEN;
+    private static String VK_MESSAGES_TOKEN;
+    private static String VK_GLOBAL_TOKEN;
 
 
-    public static String getFileName() {
-        return fileName;
+    public static void setVkGlobalToken(String vkGlobalToken) {
+        VK_GLOBAL_TOKEN = vkGlobalToken;
     }
+
 
     public static void setYANDEX_SPEACH_KIT(String YANDEX_SPEACH_KIT) {
         Settings.YANDEX_SPEACH_KIT = YANDEX_SPEACH_KIT;
@@ -29,18 +31,19 @@ public class Settings {
         Settings.VK_MESSAGES_TOKEN = VK_MESSAGES_TOKEN;
     }
 
+    public static String getFileName()          { return fileName; }
+
     public static String getYANDEX_SPEACH_KIT() {
         return YANDEX_SPEACH_KIT;
     }
 
-    public static String getVK_DOCS_TOKEN() {
-        return VK_DOCS_TOKEN;
-    }
+    public static String getVK_DOCS_TOKEN()     { return VK_DOCS_TOKEN; }
 
     public static String getVK_MESSAGES_TOKEN() {
         return VK_MESSAGES_TOKEN;
     }
 
+    public static String getVkGlobalToken()     { return VK_GLOBAL_TOKEN; }
 
 
 
@@ -76,7 +79,7 @@ public class Settings {
     public static boolean checkFileSettings () {
 
         /*
-            Проверк наличия файла настроек рядом с основным файлов
+            Проверка наличия файла настроек рядом с основным файлов
          */
 
         File file = new File(getFileName());
@@ -90,13 +93,39 @@ public class Settings {
             }
     }
 
-    public void loadSettings () {
+    public static void loadSettings () {
 
         /*
         Загрузка настроек из файла bot.settings
-         */
+        */
+
+        String bot_properties = null;
+        FileInputStream fileInputStream = null;
+        byte[] bytesFile = new byte[0];
+
+        try {
+            fileInputStream = new FileInputStream(getFileName());
+            bytesFile = new byte[fileInputStream.available()];
+            fileInputStream.read(bytesFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        bot_properties = new String(bytesFile);
+
+        JSONObject jsonObject = new JSONObject(bot_properties);
+
+        //setVK_DOCS_TOKEN(jsonObject.getString("VK_DOCS_TOKEN"));
+        //setVK_MESSAGES_TOKEN("VK_MESSAGES_TOKEN");
+        //setYANDEX_SPEACH_KIT("YANDEX_SPEACH_KIT");
+
+        System.out.println("[loadSettings]" + "\n" + "content of file is\"bot.properties\": " + bot_properties);
+
 
 
     }
+
 
 }
