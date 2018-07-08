@@ -1,4 +1,6 @@
 import org.json.JSONObject;
+import org.omg.CORBA.PRIVATE_MEMBER;
+
 import java.io.*;
 
 
@@ -10,6 +12,54 @@ public class Settings {
     private static String YANDEX_SPEACH_KIT;
     private static String VK_DOCS_TOKEN;
     private static String VK_MESSAGES_TOKEN;
+
+    private static String SPEECH_LANG;
+    private static String SPEECH_TYPE_SPEAKER;
+    private static String SPEECH_MOTION;
+    private static String SPEECH_SPEED;
+    private static String SPEECH_FORMAT_AUDIO;
+
+    public static String getSpeechLang() {
+        return SPEECH_LANG;
+    }
+
+    public static void setSpeechLang(String speechLang) {
+        SPEECH_LANG = speechLang;
+    }
+
+    public static String getSpeechTypeSpeaker() {
+        return SPEECH_TYPE_SPEAKER;
+    }
+
+    public static void setSpeechTypeSpeaker(String speechTypeSpeaker) {
+        SPEECH_TYPE_SPEAKER = speechTypeSpeaker;
+    }
+
+    public static String getSpeechMotion() {
+        return SPEECH_MOTION;
+    }
+
+    public static void setSpeechMotion(String speechMotion) {
+        SPEECH_MOTION = speechMotion;
+    }
+
+    public static String getSpeechSpeed() {
+        return SPEECH_SPEED;
+    }
+
+    public static void setSpeechSpeed(String speechSpeed) {
+        SPEECH_SPEED = speechSpeed;
+    }
+
+    public static String getSpeechFormatAudio() {
+        return SPEECH_FORMAT_AUDIO;
+    }
+
+    public static void setSpeechFormatAudio(String speechFormatAudio) {
+        SPEECH_FORMAT_AUDIO = speechFormatAudio;
+    }
+
+
 
 
     public static void setYANDEX_SPEACH_KIT(String YANDEX_SPEACH_KIT) {
@@ -55,6 +105,12 @@ public class Settings {
         jsonObject.put("YANDEX_SPEACH_KIT", "null");
         jsonObject.put("VK_DOCS_TOKEN", "null");
         jsonObject.put("VK_MESSAGES_TOKEN", "null");
+
+        jsonObject.put("SPEECH_LANG", "ru-RU");
+        jsonObject.put("SPEECH_TYPE_SPEAKER", "zahar");
+        jsonObject.put("SPEECH_MOTION", "good");
+        jsonObject.put("SPEECH_SPEED", "1.0");
+        jsonObject.put("SPEECH_FORMAT_AUDIO", "opus");
 
         PrintWriter writer = null;
         try {
@@ -115,6 +171,13 @@ public class Settings {
         setVK_DOCS_TOKEN(jsonObject.getString("VK_DOCS_TOKEN"));
         setVK_MESSAGES_TOKEN(jsonObject.getString("VK_MESSAGES_TOKEN"));
         setYANDEX_SPEACH_KIT(jsonObject.getString("YANDEX_SPEACH_KIT"));
+
+        setSpeechFormatAudio(jsonObject.getString("SPEECH_FORMAT_AUDIO"));
+        setSpeechLang(jsonObject.getString("SPEECH_LANG"));
+        setSpeechMotion(jsonObject.getString("SPEECH_MOTION"));
+        setSpeechSpeed(jsonObject.getString("SPEECH_SPEED"));
+        setSpeechTypeSpeaker(jsonObject.getString("SPEECH_TYPE_SPEAKER"));
+
 
         System.out.println("[loadSettings]" + "\n" + "content of file is \"bot.properties\": " + bot_properties + "jsonObject: " + jsonObject);
 
