@@ -1,7 +1,6 @@
 import org.json.JSONObject;
-
 import java.io.*;
-import java.nio.CharBuffer;
+
 
 
 public class Settings {
@@ -11,12 +10,6 @@ public class Settings {
     private static String YANDEX_SPEACH_KIT;
     private static String VK_DOCS_TOKEN;
     private static String VK_MESSAGES_TOKEN;
-    private static String VK_GLOBAL_TOKEN;
-
-
-    public static void setVkGlobalToken(String vkGlobalToken) {
-        VK_GLOBAL_TOKEN = vkGlobalToken;
-    }
 
 
     public static void setYANDEX_SPEACH_KIT(String YANDEX_SPEACH_KIT) {
@@ -28,27 +21,29 @@ public class Settings {
     }
 
     public static void setVK_MESSAGES_TOKEN(String VK_MESSAGES_TOKEN) {
-        Settings.VK_MESSAGES_TOKEN = VK_MESSAGES_TOKEN;
-    }
+        Settings.VK_MESSAGES_TOKEN = VK_MESSAGES_TOKEN; }
 
-    public static String getFileName()          { return fileName; }
+    public static String getFileName() {
+        return fileName; }
 
-    public static String getYANDEX_SPEACH_KIT() {
+    public static String getYANDEX_SPEACH_KIT()
+    {
         return YANDEX_SPEACH_KIT;
     }
 
-    public static String getVK_DOCS_TOKEN()     { return VK_DOCS_TOKEN; }
+    public static String getVK_DOCS_TOKEN(){
+        return VK_DOCS_TOKEN; }
 
     public static String getVK_MESSAGES_TOKEN() {
         return VK_MESSAGES_TOKEN;
     }
 
-    public static String getVkGlobalToken()     { return VK_GLOBAL_TOKEN; }
 
 
 
 
-    public static void  setSettings () {
+
+    public static void  createBotProperties () {
 
         /*
         Создание файла настроек "bot.settings" и запись в него данных, если его нет
@@ -57,9 +52,9 @@ public class Settings {
 
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("YANDEX_SPEACH_KIT", getYANDEX_SPEACH_KIT());
-        jsonObject.put("VK_DOCS_TOKEN", getVK_DOCS_TOKEN());
-        jsonObject.put("VK_MESSAGES_TOKEN", getVK_MESSAGES_TOKEN());
+        jsonObject.put("YANDEX_SPEACH_KIT", "null");
+        jsonObject.put("VK_DOCS_TOKEN", "null");
+        jsonObject.put("VK_MESSAGES_TOKEN", "null");
 
         PrintWriter writer = null;
         try {
@@ -117,13 +112,11 @@ public class Settings {
 
         JSONObject jsonObject = new JSONObject(bot_properties);
 
-        //setVK_DOCS_TOKEN(jsonObject.getString("VK_DOCS_TOKEN"));
-        //setVK_MESSAGES_TOKEN("VK_MESSAGES_TOKEN");
-        //setYANDEX_SPEACH_KIT("YANDEX_SPEACH_KIT");
+        setVK_DOCS_TOKEN(jsonObject.getString("VK_DOCS_TOKEN"));
+        setVK_MESSAGES_TOKEN(jsonObject.getString("VK_MESSAGES_TOKEN"));
+        setYANDEX_SPEACH_KIT(jsonObject.getString("YANDEX_SPEACH_KIT"));
 
-        System.out.println("[loadSettings]" + "\n" + "content of file is\"bot.properties\": " + bot_properties);
-
-
+        System.out.println("[loadSettings]" + "\n" + "content of file is \"bot.properties\": " + bot_properties + "jsonObject: " + jsonObject);
 
     }
 

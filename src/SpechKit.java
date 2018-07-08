@@ -13,7 +13,7 @@ public class SpechKit {
      *
      */
 
-    private static  String accessToken = "482e86fe-3e53-4927-b8c9-8375910b83f9";
+    private static  String accessToken = new Settings().getYANDEX_SPEACH_KIT();
 
 
     public static void generateVoice (String text, String speaker, String emotion,  String format, String lang) throws IOException {
@@ -47,7 +47,7 @@ public class SpechKit {
             connection.setRequestMethod("GET");
 
             ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-            FileOutputStream fos = new FileOutputStream("Test.ogg");
+            FileOutputStream fos = new FileOutputStream("voice.ogg");
 
             long filePosition = 0;
             long transferedBytes = fos.getChannel().transferFrom(rbc, filePosition, Long.MAX_VALUE);

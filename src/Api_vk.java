@@ -14,11 +14,11 @@ public class Api_vk {
     личной информации и к списку друзей
     */
     private static String
-            accessToken = "3e07067a55c909d2f446ead630c1fe8dbee64d7972c0ae8784f55ee8e32065038ea50982b05431b82af53";
+            accessToken = new Settings().getVK_MESSAGES_TOKEN();
 
     // accessTokenForDocs даёт доступ к методам Docs
     private static String
-            accessTokenForDocs = "21e894b38cac0d87154953c80e98f827c1bf2895873520134e13e241efbfe126edd278942b03da7c945ad&expires_in=0&user_id=456470268";
+            accessTokenForDocs = new Settings().getVK_DOCS_TOKEN();
 
     private static String key;
     private static String server;
@@ -320,13 +320,15 @@ public class Api_vk {
 
     public static void getLongPollServer (Integer ip_version) throws IOException {
 
-        /*
+        /**
         messages.getLongPollServer
         Возвращает key, server, ts
         Данные необходимы для работы следующего запросa "getEvents" - User Long Poll API
         #
          https://{$server}?act=a_check&key={$key}&ts={$ts}&wait=25&mode=2&version=2
-        #
+
+        !!! Обрабатывает ошибку "\"error_code\":5" внутри метода
+         используется рекурсия
          */
 
         String url = "https://api.vk.com/method/messages.getLongPollServer?" +
@@ -356,16 +358,34 @@ public class Api_vk {
         }
         in.close();
 
+        JSONObject jsonObject = new JSONObject(response.toString());
+
+
+        /**Если токен для отправки сообщений не верный
+        */
+        if (response.toString().contains("\"error_code\":5")) {
+            System.out.println("[getLongPollServer]" +  "\n" + "Invalid access_token (4)" + "\n" +
+                    "Полученный URL: " + url + "\n" +
+                    response.toString());
+            try {
+                Thread.sleep(60000);
+                getLongPollServer(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        setKey(jsonObject.getJSONObject("response").get("key").toString());
+        setServer(jsonObject.getJSONObject("response").get("server").toString());
+        setTs(jsonObject.getJSONObject("response").getInt("ts"));
 
         System.out.println("[getLongPollServer]" +  "\n" + "Не обработанный ответ на запрос messages.getLongPollServer: " + "\n" +
                 "Полученный URL: " + url + "\n" +
                 response.toString());
 
-        JSONObject jsonObject = new JSONObject(response.toString());
-        setKey(jsonObject.getJSONObject("response").get( "key").toString());
-        setServer(jsonObject.getJSONObject("response").get( "server").toString());
-        setTs(jsonObject.getJSONObject("response").getInt( "ts" ));
-       }
+    }
 
     public static String getEvents (String key, String server, Integer ts, Integer wait)
             throws IOException {

@@ -34,7 +34,7 @@ public class BotLogic {
 
         SpechKit.generateVoice(text, "zahar", "good", "opus", "ru-RU");
         String srv = Api_vk.getMessagesUploadServer("audio_message",  peer_id);
-        String doc = Api_vk.loadAudioMessage(srv,"Test.ogg");
+        String doc = Api_vk.loadAudioMessage(srv,"voice.ogg");
         String nameDoc = Api_vk.docSave(doc);
         Api_vk.send("..", peer_id, 0, 0, nameDoc);
 

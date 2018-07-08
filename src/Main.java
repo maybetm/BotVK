@@ -8,14 +8,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-    //test
+        //tests
 
-
-        new Settings().setSettings();
-        new Settings().checkFileSettings();
-        new Settings().loadSettings();
-
-     // иначе плывёт Кодировка в терминале на windows и Linux
+        // иначе плывёт Кодировка в терминале на Windows и Linux
         System.setProperty("file.encoding","UTF-8");
         Field charset = null;
         try {
@@ -29,8 +24,12 @@ public class Main {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+
+        //start bot
+        startBotConfigs();
+
         LongPollServer();
-        new Thread().run();
+        new Thread_Bot().run();
     }
 
     public static void LongPollServer () throws IOException {
@@ -38,6 +37,18 @@ public class Main {
         new Api_vk().getLongPollServer( 3 );
         String response =  new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),5);
         Api_vk.parseEvents(response);
+    }
+
+    public static void startBotConfigs() {
+
+        Settings setup = new Settings();
+
+        if (setup.checkFileSettings()) {
+                setup.loadSettings();
+        } else {
+            setup.createBotProperties();
+        }
+
     }
 
 
