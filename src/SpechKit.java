@@ -18,7 +18,7 @@ public class SpechKit {
 
 
 
-    public static void generateVoice (String text, String speaker, String emotion,  String format, String lang) throws IOException {
+    public static void generateVoice (String text, String speaker, String emotion,  String format, String lang, String fileName) throws IOException {
 
         /*
         Результатом выполнения метода должен быть аудиофайл
@@ -49,7 +49,7 @@ public class SpechKit {
             connection.setRequestMethod("GET");
 
             ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-            FileOutputStream fos = new FileOutputStream("voice.ogg");
+            FileOutputStream fos = new FileOutputStream(fileName);
 
             long filePosition = 0;
             long transferedBytes = fos.getChannel().transferFrom(rbc, filePosition, Long.MAX_VALUE);

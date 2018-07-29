@@ -474,12 +474,6 @@ public class Api_vk {
             List<String> items = new ArrayList(Arrays.asList(response.split(",")));
             items.add(bodyMessage);
 
-            //!!тест!!
-            /*for(int i=0; i<items.size(); i++) {
-                System.out.println(" -->"+items.get(i));
-            }
-            */
-
             System.out.println("[parseEvents]: Массив параметров: " + items);
             return (ArrayList) items;
 

@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="BotVK:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/BotVK_jar</output-path>
+    <root id="archive" name="BotVK.jar">
+      <element id="module-output" name="BotVK" />
+      <element id="extracted-dir" path="E:/distributions/for developers/Java/jar libraries/Json/java-simples/json-20180130.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

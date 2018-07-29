@@ -1,5 +1,6 @@
 
 import java.io.*;
+import java.util.UUID;
 
 public class BotLogic {
 
@@ -16,8 +17,6 @@ public class BotLogic {
          */
         String mes = null;
 
-       // mes = new String(message.getBytes("cp1251"),"utf-8");
-
         if (message.contains("Лукас,") && message.contains("тест")) {
                 return "Тест успешно пройден.";
         } else {
@@ -31,14 +30,27 @@ public class BotLogic {
         /*
         Отправляет голосовое сообщение
          */
-
         Settings settings = new Settings();
 
-        SpechKit.generateVoice(text, settings.getSpeechTypeSpeaker(), settings.getSpeechMotion(), settings.getSpeechFormatAudio(), settings.getSpeechLang());
+        //создаем файл с рандомным именем
+        String fileName = UUID.randomUUID().toString();
+
+        SpechKit.generateVoice(text, settings.getSpeechTypeSpeaker(), settings.getSpeechMotion(), settings.getSpeechFormatAudio(), settings.getSpeechLang(), fileName);
         String srv = Api_vk.getMessagesUploadServer("audio_message",  peer_id);
-        String doc = Api_vk.loadAudioMessage(srv,"voice.ogg");
+        String doc = Api_vk.loadAudioMessage(srv, fileName);
         String nameDoc = Api_vk.docSave(doc);
         Api_vk.send("..", peer_id, 0, 0, nameDoc);
+
+        System.out.println("[sendVoiceMessage] " + " file of audio name: " + fileName + "\n" + "text of voice message: " + text );
+
+
+        File file = new File(fileName);
+
+        if (file.delete()) {
+            System.out.println("[sendVoiceMessage]" + fileName + " File is deleted");
+        } else {
+            System.out.println("[sendVoiceMessage] " + fileName + "file is not find");
+        }
 
     }
 }
