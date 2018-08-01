@@ -29,8 +29,6 @@ public class BotLogic {
 
         /*
         Отправляет голосовое сообщение
-        Сперва метод generateVoice генерирует голосовое сообщение и сохраняет его в файл
-        Потом череда методов загружает документ на сервер и отправляет сообщение с этим документом пользователю
          */
         Settings settings = new Settings();
 
@@ -49,9 +47,9 @@ public class BotLogic {
         File file = new File(fileName);
 
         if (file.delete()) {
-            System.out.println("[sendVoiceMessage] \"" + fileName + "\" File is deleted");
+            System.out.println("[sendVoiceMessage]" + fileName + " File is deleted");
         } else {
-            System.out.println("[sendVoiceMessage] \"" + fileName + "\"file is not find");
+            System.out.println("[sendVoiceMessage] " + fileName + "file is not find");
         }
 
     }
