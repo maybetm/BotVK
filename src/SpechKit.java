@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 

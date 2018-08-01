@@ -1,10 +1,21 @@
 
 
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+
 import java.util.ArrayList;
 
 public class Thread_Bot extends java.lang.Thread {
+
+    public static void setCountEvents(Integer countEvents) {
+        Thread_Bot.countEvents = countEvents;
+    }
+
+    public static Integer getCountEvents() {
+        return countEvents;
+    }
+
+    private static Integer countEvents = 0;
+
     public void run (){
         try {
             for (;;) {
@@ -35,20 +46,25 @@ public class Thread_Bot extends java.lang.Thread {
                    }
 
                 } else {
-                    System.out.println("Сообщения нет. Не веришь, - смотри сам: " + eventsList);
+                    System.out.println("Not new events, eventsList = " + eventsList);
                 }
                 
-                try {
-                    sleep( 5 );
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
 
     }
 }
+    public static Integer setDelay () {
+
+        //Возвращает время задержки
+        //в зависимости от значения переменной countEvents
+        //Это необходимо, чтобы распределить нагрузку, так как одновременно можно отправить только 3 сообщения
+        //из-за ограничений SpeechKit и api вконтакте
+
+        return setDelay();
+    }
 }
 
 
