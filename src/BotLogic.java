@@ -4,9 +4,21 @@ import java.util.UUID;
 
 public class BotLogic {
 
+    public static synchronized void setCountEvents(Integer countEvents) {
+       BotLogic.countEvents = countEvents;
+    }
+
+    public static synchronized Integer getCountEvents() {
+        return countEvents;
+    }
+
+    private static Integer countEvents = 0;
+
     public static String getAnswer (String message) throws NullPointerException {
 
         /*
+        В конечном итоге, этот метод должен быть точкой входа в логику бота
+        *******************************************************************
         Функция работает в тестовом режиме
         Возвращает два ответа:
         -"Тест пройден"
@@ -32,6 +44,8 @@ public class BotLogic {
         Сперва метод generateVoice генерирует голосовое сообщение и сохраняет его в файл
         Потом череда методов загружает документ на сервер и отправляет сообщение с этим документом пользователю
          */
+        BotLogic.setCountEvents( BotLogic.getCountEvents() + 1 );
+
         Settings settings = new Settings();
 
         //создаем файл с рандомным именем
@@ -43,16 +57,24 @@ public class BotLogic {
         String nameDoc = Api_vk.docSave(doc);
         Api_vk.send("..", peer_id, 0, 0, nameDoc);
 
-        System.out.println("[sendVoiceMessage] " + " file of audio name: " + fileName + "\n" + "text of voice message: " + text );
+        System.out.println("[sendVoiceMessage] " + " text of message: " + text +  "\n file of audio name: " + fileName + "\n" + "text of voice message: " + text );
 
+        //удаляем файл
+        deleteFile(fileName);
+
+        BotLogic.setCountEvents( BotLogic.getCountEvents() - 1 );
+
+    }
+
+    public static void deleteFile (String fileName) {
 
         File file = new File(fileName);
 
         if (file.delete()) {
             System.out.println("[sendVoiceMessage] \"" + fileName + "\" File is deleted");
+
         } else {
             System.out.println("[sendVoiceMessage] \"" + fileName + "\"file is not find");
         }
-
     }
 }

@@ -268,54 +268,7 @@ public class Api_vk {
         return response.toString();
     }
 
-    public static int getCountUnreadMessages(Integer count, Integer unread) throws IOException {
 
-        /*
-        Параметр count определяет сколько сообщений минимум или максимум мы вернём
-        Если count = 0, то запрос вернет количество не прочитанных сообщений. Массив items при этом будет пустым.
-        Если  больше нуля, то вернёт самый актуальный диалог (который стоит на первом месте в сообщениях)
-         */
-
-        String url = "https://api.vk.com/method/messages.getDialogs?" +
-                "unread=" + URLEncoder.encode(unread.toString(), "UTF8") +
-                "&count=" + URLEncoder.encode(count.toString(), "UTF8") +
-                "&v=5.52&access_token=" + accessToken;
-
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        //Обработка Json ответа, сохранение результату в объект "dCount"
-        //Получаем количество не прочитанных сообщений
-        JSONObject jsonObject = new JSONObject( response.toString() );
-        Integer dCont = (Integer) jsonObject.getJSONObject("response")
-                .get( "count" );
-
-        System.out.println("[getCountUnreadMessages]" + " unread dialogs: " + dCont.toString() +  "\n" + "Не обработанный ответ на запрос messages.getDialogs: " + "\n" +
-                "Полученный URL: " + url + "\n" +
-                response.toString());
-
-        return dCont;
-    }
 
 
     public static void getLongPollServer (Integer ip_version) throws IOException {
@@ -456,17 +409,19 @@ public class Api_vk {
 
          */
         String response = answer;
-        String bodyMessage = null;
+        String bodyMessage;
 
         try {
             response = response.substring( response.indexOf( "[4" ), response.lastIndexOf("]"));
-            response = response.toString().replace( "[", "" )
+                System.out.println(response);
+            response = response.replace( "[", "" )
                                             .replace( "]", "" );
+                System.out.println(response);
             bodyMessage = response.substring( response.indexOf( "\"" ) + 1, response.lastIndexOf( "\"," ) );
 
             response = response.replace( "\"" + bodyMessage + "\",", "" );
 
-            System.out.println( "Обработанный ответ на метод getEvents(): " + response + "\n" +
+            System.out.println( "result of getEvents(): " + response + "\n" +
             "bodyMessage= " + bodyMessage);
 
 
@@ -484,91 +439,107 @@ public class Api_vk {
         }
     }
 
-    public static void checkUnreadMessages () throws IOException {
 
-        // время
-        String timeToSearch;
-        //Количество непрочитанных сообщений
-        Integer unreadMessages = 0;
-        //Json ответ message.getSearch (Поиск выполняем по подстроке "тест")
-        String responseSearch;
-        //Количество найденных сообщений методом searchString()
-        Integer countSearch;
+    public static int getCountUnreadMessages(Integer count, Integer unread) throws IOException {
 
         /*
-        id_user | body_message | date
-        Три списка, решил не выдумывать и не создавать безсмысленных костылей.
-        Массивы используются для хранения информации из метода searchString()
-        В массивы сохраняются данные из не прочитанных сообщений
-        */
-        ArrayList<Integer> id_user = new ArrayList<Integer>();
-        ArrayList<Integer> id_message = new ArrayList<Integer>();
-        ArrayList<String> body_message = new ArrayList<String>();
-        ArrayList<Integer> date = new ArrayList<Integer>();
+        Параметр count определяет сколько сообщений минимум или максимум мы вернём
+        Если count = 0, то запрос вернет количество не прочитанных сообщений. Массив items при этом будет пустым.
+        Если  больше нуля, то вернёт самый актуальный диалог (который стоит на первом месте в сообщениях)
+        Если unread = 1, вернуть только те диалоги, в которых есть непрочитанные сообщения.
+         */
+
+        String url = "https://api.vk.com/method/messages.getDialogs?" +
+                "unread=" + URLEncoder.encode(unread.toString(), "UTF8") +
+                "&count=" + URLEncoder.encode(count.toString(), "UTF8") +
+                "&v=5.52&access_token=" + accessToken;
+
+        URL obj = null;
+        try {
+            obj = new URL(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
 
         try {
-            unreadMessages =  new Api_vk().getCountUnreadMessages(0,1 );
-        } catch (IOException e) {
+            connection.setRequestMethod("GET");
+        } catch (ProtocolException e) {
             e.printStackTrace();
         }
 
-        responseSearch = new Api_vk().searchString("тест", "", "",0, 0, true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
 
-        JSONObject jsonObject = new JSONObject( responseSearch );
-
-        countSearch = jsonObject.getJSONObject( "response" ).getInt( "count" );
-
-        //JSONArray jsonArray = jsonObject.getJSONObject("response").getJSONArray("items" );
-
-        responseSearch = new Api_vk().searchString("тест", "", "",0, countSearch, true);
-
-        jsonObject = new JSONObject( responseSearch );
-        JSONArray jsonArray = jsonObject.getJSONObject( "response" ).getJSONArray( "items" );
-
-        Integer countArrayItems = 0;
-        for (int i = 0; i != countSearch; i++ ) {
-            //  id_user | id_message | body_message | date
-            if ((jsonArray.getJSONObject(i).getInt( "read_state" ) == 0) &&
-                    (jsonArray.getJSONObject(i).getInt( "out" ) == 0)) {
-                countArrayItems ++;
-                id_user.add( jsonArray.getJSONObject( i).getInt( "user_id" ) );
-                id_message.add( jsonArray.getJSONObject( i ).getInt( "id" ) );
-                body_message.add( jsonArray.getJSONObject( i ).getString( "body" ));
-                date.add( jsonArray.getJSONObject( i ).getInt( "date" ) );
-            }
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
         }
+        in.close();
 
-        System.out.println( "Количество не прочитанных сообщений, с найденной подстрокой 'тест' : " + countArrayItems );
+        //Обработка Json ответа, сохранение результату в объект "dCount"
+        //Получаем количество не прочитанных сообщений
+        System.out.println("URL: " + url + "\n response: " + response);
+        JSONObject jsonObject = new JSONObject( response.toString() );
+        Integer dCont = (Integer) jsonObject.getJSONObject("response")
+                .get( "count" );
 
+        System.out.println("[getCountUnreadMessages]" + " unread dialogs: " + dCont.toString() +  "\n" + "Не обработанный ответ на запрос messages.getDialogs: " + "\n" +
+                "Полученный URL: " + url + "\n" +
+                response.toString());
 
-
+        return dCont;
     }
 
+    public static String checkUnreadChat(Integer offset, Integer count, String filter, Integer extended, String fields) throws IOException {
 
+        //Метод возвращает список бесед пользователя
+        //ссылка на документацию:
+        //https://vk.com/dev/messages.getConversations?params[offset]=0&params[count]=20&params[filter]=unread&params[extended]=1&params[fields]=profiles&params[v]=5.80
 
+        String url = null;
+        try {
+            url = "https://api.vk.com/method/messages.getConversations?" +
+                    "count=" + URLEncoder.encode(count.toString(), "UTF8") +
+                    "&filter=" + URLEncoder.encode(filter, "UTF8") +
+                    "&extended=" + URLEncoder.encode(extended.toString(), "UTF8") +
+                    "&fields=" + URLEncoder.encode(fields, "UTF8") +
+                    "&v=5.52&access_token=" + accessToken;
 
-    public static void parseMessages(String jsonAnswer) {
-
-        /*
-
-        !!ПЕРЕНЕСТИ ВСЕ МЕТОДЫ ДЛЯ ПАРСИНГА В ОТДЕЛЬНЫЕ КЛАССЫ!!
-
-        Тестовый метод для обработки Json ответа от метода getHistoryDialog
-        На данный момент парсит список 5 послених полученных сообщений !!!!
-        Небходим исключительно для работы с методом getHistoryDialog!!!
-         */
-
-        String response = jsonAnswer;
-        List<String> items = new ArrayList<>();
-
-        JSONObject jsonObject = new JSONObject(response);
-        JSONArray jsonArray = jsonObject.getJSONObject("response")
-                .getJSONArray("items");
-        for (int i = 0; i < jsonArray.length(); i++) {
-            items.add(jsonArray.get(i ).toString());
-            System.out.println( jsonArray.getJSONObject(i).get( "read_state" ));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
+
+        URL obj = null;
+        try {
+            obj = new URL(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+
+        try {
+            connection.setRequestMethod("GET");
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+
+        System.out.println("[checkUnreadChat]" + "\nURL: " + url +
+        "\n" + "response: " + response);
+
+        return response.toString();
     }
+
 
     public static String getMessagesUploadServer (String type, String peer_id) throws IOException {
 
@@ -584,7 +555,6 @@ public class Api_vk {
                     "&peer_id=" + URLEncoder.encode(peer_id, "UTF8") +
                     "&v=5.52&access_token=" + accessTokenForDocs;
 
-            System.out.println("[getMessagesUploadServer] " + "\n" + "url : " + url);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
