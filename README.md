@@ -12,9 +12,12 @@ MultipartUtility.java: класс для отправки сообщений. Н
 http://www.codejava.net/java-se/networking/upload-files-by-sending-multipart-request-programmatically
 
 Речевые технологии SpeechKit: облачное решение от Яндекса для синтеза речи.
-https://webasr.yandex.net/ttsdemo.html - форма для тестов; https://tech.yandex.ru/speechkit/cloud/doc/guide/common/speechkit-common-tts-http-request-docpage/ - документация.
+
+https://webasr.yandex.net/ttsdemo.html - форма для тестов;
+https://tech.yandex.ru/speechkit/cloud/doc/guide/common/speechkit-common-tts-http-request-docpage/ - документация.
 
 Список изменений, которые необходимо внести:
+
 •	Добавить обработку исклительных ситуаций (Общение сразу с несколькими пользователями и обработку кучи сообщеий от одного пользователя);
 
 •	Отображать активность бота, пока сообщение отправляется или каким-то образом обрататывается.
