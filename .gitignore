@@ -1,5 +1,3 @@
 
-*.properties
-bot.properties
-*.properties
+
 .idea/workspace.xml
