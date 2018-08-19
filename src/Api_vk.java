@@ -174,7 +174,7 @@ public class Api_vk {
         return (ArrayList) items;
     }
 
-    public static String getHistoryDialog (String id, Integer count, Integer rev) throws IOException {
+    public static String getHistoryDialog (Integer id, Integer count, Integer rev) throws IOException {
 
         /*
         Метод возвращает историю сообщений с выбранным пользователем
@@ -186,8 +186,8 @@ public class Api_vk {
          */
 
         String url = "https://api.vk.com/method/messages.getHistory?" +
-                "user_id=" + URLEncoder.encode(id, "UTF8") +
-                "&peer_id=" + URLEncoder.encode(id, "UTF8") +
+//              "user_id=" + URLEncoder.encode(id.toString(), "UTF8") +
+                "&peer_id=" + URLEncoder.encode(id.toString(), "UTF8") +
                 "&count=" + URLEncoder.encode(count.toString(), "UTF8") +
                 "&rev=" + URLEncoder.encode(rev.toString(), "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
@@ -217,6 +217,7 @@ public class Api_vk {
 
 
         System.out.println("[getHistoryDialog]" + "\n" + "Полученный URL: " + url + "\n" + response.toString());
+
         return response.toString();
     }
 
@@ -440,13 +441,16 @@ public class Api_vk {
     }
 
 
-    public static int getCountUnreadMessages(Integer count, Integer unread) throws IOException {
+    public static String getDialogs(Integer count, Integer unread) throws IOException {
 
         /*
         Параметр count определяет сколько сообщений минимум или максимум мы вернём
         Если count = 0, то запрос вернет количество не прочитанных сообщений. Массив items при этом будет пустым.
         Если  больше нуля, то вернёт самый актуальный диалог (который стоит на первом месте в сообщениях)
         Если unread = 1, вернуть только те диалоги, в которых есть непрочитанные сообщения.
+
+        Метод объявлен устаревшим в версии 5.80
+        https://vk.com/dev/messages.getDialogs
          */
 
         String url = "https://api.vk.com/method/messages.getDialogs?" +
@@ -477,18 +481,7 @@ public class Api_vk {
         }
         in.close();
 
-        //Обработка Json ответа, сохранение результату в объект "dCount"
-        //Получаем количество не прочитанных сообщений
-        System.out.println("URL: " + url + "\n response: " + response);
-        JSONObject jsonObject = new JSONObject( response.toString() );
-        Integer dCont = (Integer) jsonObject.getJSONObject("response")
-                .get( "count" );
-
-        System.out.println("[getCountUnreadMessages]" + " unread dialogs: " + dCont.toString() +  "\n" + "Не обработанный ответ на запрос messages.getDialogs: " + "\n" +
-                "Полученный URL: " + url + "\n" +
-                response.toString());
-
-        return dCont;
+        return response.toString();
     }
 
     public static String checkUnreadChat(Integer offset, Integer count, String filter, Integer extended, String fields) throws IOException {

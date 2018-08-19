@@ -29,14 +29,15 @@ public class Application {
         //tests
 
         Settings.loadSettings();
-        Api_vk.checkUnreadChat(0,20, "unread", 1, "profiles");
         Controller.checkUnreadMessages();
 
-        //start bot
-        startBotConfigs();
 
-        LongPollServer();
-        new Controller().run();
+
+        //start bot
+        //startBotConfigs();
+
+        //LongPollServer();
+        //new Controller().run();
   }
 
     public static void LongPollServer () throws IOException {
