@@ -5,6 +5,7 @@ BotVK
 В проекте применяются следующие сторонние решения:
 
 json in java: библиотека для обработки json ответов.
+
   http://mvnrepository.com/artifact/org.json/json/20180130
 
 MultipartUtility.java: класс для отправки сообщений. Немножко отредаченный под свои нужды.
