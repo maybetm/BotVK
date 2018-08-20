@@ -135,7 +135,7 @@ public class Controller extends java.lang.Thread {
 
         JSONArray jsonArray = jsonObject.getJSONObject("response").getJSONArray("items");
 
-        System.out.println("[replyToUnread] countUnread = " + countUnread);
+        System.out.println("[replyToUnread] countUnread = " + countUnread + "\nJSON: " + jsonObj);
 
         for (int i = countUnread - 1; i >= 0; i--) {
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
@@ -158,7 +158,8 @@ public class Controller extends java.lang.Thread {
             String srv = Api_vk.getMessagesUploadServer("audio_message",  user_id.toString());
             String doc = Api_vk.loadAudioMessage(srv, fileName);
             String nameDoc = Api_vk.docSave(doc);
-            Api_vk.send("..", user_id.toString(), 0, 0, nameDoc);
+            Api_vk.send("", user_id.toString(), 0, 0, nameDoc,
+                    new String(String.valueOf(jsonArray.getJSONObject(i).getInt("id"))));
 
             System.out.println("[sendVoiceMessage] " + " text of message: " +
                           jsonArray.getJSONObject(i).getString("body") +

@@ -49,7 +49,7 @@ public class Api_vk {
     }
 
 
-    public static String send(String message, String id, Integer peerState, Integer id_message, String attachment) throws IOException {
+    public static String send(String message, String id, Integer peerState, Integer id_message, String attachment, String forward_messages) throws IOException {
 
         /*
         МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
@@ -78,6 +78,7 @@ public class Api_vk {
                 "peer_id=" +  URLEncoder.encode(peer_id.toString(), "UTF8") +
                 "&message=" + URLEncoder.encode(message, "UTF8") +
                 "&attachment=" + URLEncoder.encode(attachment, "UTF8") +
+                "&forward_messages=" + URLEncoder.encode(forward_messages, "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
         URL obj = new URL(url);
