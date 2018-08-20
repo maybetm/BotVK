@@ -13,7 +13,10 @@ public class Controller extends java.lang.Thread {
 
 
     public void run (){
+
+
         try {
+                           Controller.checkUnreadMessages();
             for (;;) {
 
 
@@ -122,6 +125,7 @@ public class Controller extends java.lang.Thread {
         Метод надо перенести в Botlogic
          */
 
+        Integer countAnswer = 0;
 
         Settings settings = new Settings();
 
@@ -131,10 +135,11 @@ public class Controller extends java.lang.Thread {
 
         JSONArray jsonArray = jsonObject.getJSONObject("response").getJSONArray("items");
 
+        System.out.println("[replyToUnread] countUnread = " + countUnread);
 
-        for (int i = 0; i < countUnread; i++) {
-
-            if ((i%3 == 0) && (i > 0) )  {
+        for (int i = countUnread - 1; i >= 0; i--) {
+                        System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
+            if ((countAnswer%3 == 0) && (countAnswer > 0) )  {
                         System.out.println("Items["+ i + "] Initialization sleep on 1 sec \n");
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
 
@@ -144,6 +149,7 @@ public class Controller extends java.lang.Thread {
                     e.printStackTrace();
                 }
             }
+
 
             //создаем файл с рандомным именем
             String fileName = UUID.randomUUID().toString();
@@ -161,6 +167,7 @@ public class Controller extends java.lang.Thread {
             //удаляем файл
             BotLogic.deleteFile(fileName);
 
+            countAnswer ++;
         }
 
     }

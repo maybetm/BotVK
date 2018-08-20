@@ -28,16 +28,16 @@ public class Application {
 
         //tests
 
-        Settings.loadSettings();
-        Controller.checkUnreadMessages();
+        //Settings.loadSettings();
+        //Controller.checkUnreadMessages();
 
 
 
         //start bot
-        //startBotConfigs();
+        startBotConfigs();
 
-        //LongPollServer();
-        //new Controller().run();
+        LongPollServer();
+        new Controller().run();
   }
 
     public static void LongPollServer () throws IOException {
