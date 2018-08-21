@@ -140,7 +140,7 @@ public class Controller extends java.lang.Thread {
         for (int i = countUnread - 1; i >= 0; i--) {
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
             if ((countAnswer%3 == 0) && (countAnswer > 0) )  {
-                        System.out.println("Items["+ i + "] Initialization sleep on 1 sec \n");
+                        System.out.println("Initialization sleep on " + delayInMilisec + " miliseconds \n");
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
 
                 try {
