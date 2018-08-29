@@ -94,14 +94,6 @@ public class Api_vk {
         }
         in.close();
 
-        for (int i = 0; i < Constants.errorsList.length; i ++) {
-            if (response.toString().contains(Constants.errorsList[i])) {
-                System.out.println("[sendHttp] REQUEST ERROR: " + response);
-                Thread.sleep(1000);
-                sendHttp(url, type);
-            }
-        }
-
         System.out.println("[sendHttp] Request processing completed");
 
 

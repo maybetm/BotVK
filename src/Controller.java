@@ -20,6 +20,12 @@ public class Controller extends Thread {
 
                     String answer = Api_vk.getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(), 60);  Thread.sleep(1000);
 
+                    if (answer.contains("{\"failed\":2}")) {
+                        System.out.println("[Controller] Connection failed. Error: <failed : 2>");
+                        Api_vk.getLongPollServer( 3 );
+                        answer =  new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),60);
+                    }
+
                     JSONArray messagesList = new JSONObject(getInfoInputMessages(answer)).getJSONArray("items");
 
                     System.out.println("[Controller] size of messagesList: " + messagesList.length());
@@ -32,9 +38,9 @@ public class Controller extends Thread {
 
                                 System.out.println("[Controller] new message: " + messagesList.getJSONArray(iFinal).get(5));
                                 try {
-                                    BotLogic.sendVoiceMessage(messagesList.getJSONArray(iFinal).getString(5),    //
-                                            messagesList.getJSONArray(iFinal).getInt(3)); //id чата
-                                    //Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
+//                                    BotLogic.sendVoiceMessage(messagesList.getJSONArray(iFinal).getString(5),    //
+ //                                           messagesList.getJSONArray(iFinal).getInt(3)); //id чата
+                                   Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 } catch (InterruptedException e) {
