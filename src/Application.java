@@ -6,11 +6,9 @@ import java.nio.charset.Charset;
 
 public class Application {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
 
-        //tests
-
-        // иначе плывёт Кодировка в терминале на Windows и Linux
+         // иначе плывёт Кодировка в терминале на Windows и Linux
         System.setProperty("file.encoding","UTF-8");
         Field charset = null;
         try {
@@ -28,11 +26,6 @@ public class Application {
 
         //tests
 
-        //Settings.loadSettings();
-        //Controller.checkUnreadMessages();
-
-
-
         //start bot
         startBotConfigs();
 
@@ -42,7 +35,7 @@ public class Application {
 
   }
 
-    public static void LongPollServer () throws IOException {
+    public static void LongPollServer () throws IOException, InterruptedException {
 
         new Api_vk().getLongPollServer( 3 );
         new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),5);

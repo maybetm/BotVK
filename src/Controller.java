@@ -34,6 +34,7 @@ public class Controller extends Thread {
                                 try {
                                     BotLogic.sendVoiceMessage(messagesList.getJSONArray(iFinal).getString(5),    //
                                             messagesList.getJSONArray(iFinal).getInt(3)); //id чата
+                                    //Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 } catch (InterruptedException e) {
@@ -56,7 +57,7 @@ public class Controller extends Thread {
 
 
 
-    private static boolean checkUnreadMessages () throws IOException {
+    private static boolean checkUnreadMessages () throws IOException, InterruptedException {
 
         /*
         Метод проверяет количество непрочитанных сообщений
@@ -97,7 +98,7 @@ public class Controller extends Thread {
     }
 
 
-    private static void replyToUnread(Integer user_id, Integer countUnread, String jsonItems, Integer delayInMilisec) throws IOException {
+    private static void replyToUnread(Integer user_id, Integer countUnread, String jsonItems, Integer delayInMilisec) throws IOException, InterruptedException {
 
         /*
         Отвечает пользователю на каждое непрочитанное сообщение
@@ -120,7 +121,7 @@ public class Controller extends Thread {
         for (int i = countUnread - 1; i >= 0; i--) {
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
             if ((countAnswer%3 == 0) && (countAnswer > 0) )  {
-                        System.out.println("Initialization sleep on " + delayInMilisec + " miliseconds \n");
+                        System.out.println("Items["+ i + "] Initialization sleep on 1 sec \n");
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
 
                 try {
@@ -176,8 +177,6 @@ public class Controller extends Thread {
         incomingMessagesID - Массив идентификаторов для новый входящих сообщений.
 
          */
-        String response = answer;
-
         ArrayList<Object> items = new ArrayList<>();
 
         JSONObject listOfMessages = new JSONObject();

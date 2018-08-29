@@ -1,11 +1,9 @@
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class Api_vk {
 
@@ -49,12 +47,38 @@ public class Api_vk {
     }
 
 
+    //пространство в для запросов
+    //true - место занято, false - место свободно
+    private static final boolean[] spaceOfRequests  = new boolean[Constants.maxRequestCount];
 
-    private static String sendHttp (String url, String type) throws IOException {
+    //Устанавливаем флаг "справедливый", в таком случае метод
+    //aсquire() будет раздавать разрешения в порядке очереди
+    private static final Semaphore SEMAPHORE = new Semaphore(Constants.maxRequestCount, true);
+
+    private static String sendHttp (String url, String type) throws IOException, InterruptedException {
 
         //Метод отправляет http запрос
         //String url;
         //@type = GET or POST
+
+
+
+        SEMAPHORE.acquire();
+
+        Integer streamNumber = -1;
+
+        synchronized (spaceOfRequests) {
+            for (int i = 0; i < Constants.maxRequestCount; i++){
+                if (!spaceOfRequests[i]) {
+                    spaceOfRequests[i] = true;
+                    streamNumber = i;
+                    System.out.printf("[sendHttp] Stream take place [№%d]", i);
+                    break;
+                }
+            }
+        }
+
+        System.out.println("[sendHttp] Start request processing");
 
         URL obj = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
@@ -70,11 +94,32 @@ public class Api_vk {
         }
         in.close();
 
+        for (int i = 0; i < Constants.errorsList.length; i ++) {
+            if (response.toString().contains(Constants.errorsList[i])) {
+                System.out.println("[sendHttp] REQUEST ERROR: " + response);
+                Thread.sleep(1000);
+                sendHttp(url, type);
+            }
+        }
+
+        System.out.println("[sendHttp] Request processing completed");
+
+
+        synchronized (spaceOfRequests) {
+            //освобождаем место
+            spaceOfRequests[streamNumber] = false;
+        }
+
+        SEMAPHORE.release();
+        System.out.printf("[sendHttp] The thread frees the place [№%d]", streamNumber);
+
+
         return response.toString();
+
     }
 
 
-    public static String send(String message, String id, Integer peerState, Integer id_message, String attachment, String forward_messages) throws IOException {
+    public static String send(String message, String id, Integer peerState, Integer id_message, String attachment, String forward_messages) throws IOException, InterruptedException {
 
         /*
         МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
@@ -106,23 +151,11 @@ public class Api_vk {
                 "&forward_messages=" + URLEncoder.encode(forward_messages, "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
-        URL obj = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        connection.setRequestMethod("GET");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
+        String response = sendHttp(url, "GET");
 
         String answer =
                 "------------------------------------------------" + "\n" +
-                "Json Ответ от API-VK: " + response.toString() + '\n' +
+                "Json Ответ от API-VK: " + response + '\n' +
                 "Id получателя: " + "id" + id + '\n' +
                 "Текст сообщения: " + "\n" + message + "\n" +
                 "------------------------------------------------";
@@ -131,7 +164,44 @@ public class Api_vk {
         return answer;
     }
 
-    public  String getListFiends (String Id) throws IOException {
+    public static String send(String message, Integer id) throws IOException, InterruptedException {
+
+        /*
+        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
+
+        Без URLEncoder.encode строка не верно складывается
+        следовательно запрос не отрабатывает
+        Если peerState = 0, то сообщение отправляется юзеру;
+             peerState = 1, То сообщение оправляется в групповой чат;
+             peetState = 2, то сообщение отправляется сообществу.
+
+        id_messsage - параметр необходим для ответа на сообщение юзера
+
+        Если type = 0, то отправляем обычное сооб
+        */
+
+        Integer peer_id = id;
+
+
+        String url = "https://api.vk.com/method/messages.send?" +
+                "peer_id=" +  URLEncoder.encode(peer_id.toString(), "UTF8") +
+                "&message=" + URLEncoder.encode(message, "UTF8") +
+                "&v=5.52&access_token=" + accessToken;
+
+        String response = sendHttp(url, "GET");
+
+        String answer =
+                "------------------------------------------------" + "\n" +
+                        "Json Ответ от API-VK: " + response + '\n' +
+                        "Id получателя: " + "id" + id + '\n' +
+                        "Текст сообщения: " + "\n" + message + "\n" +
+                        "------------------------------------------------";
+
+        System.out.println("[send] " + "Отправка сообщения: " + message);
+        return answer;
+    }
+
+    public  String getListFiends (String Id) throws IOException, InterruptedException {
 
         /*
         Метод должен возвращать список друзей в формате arraylist
@@ -147,60 +217,18 @@ public class Api_vk {
                 "user_id=" + URLEncoder.encode(Id, "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
+        String response = sendHttp(url, "GET");
 
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
 
         System.out.println("[getListFiends]" + "\n" + "Не обработанный ответ на запрос friends.get: " + "\n" +
         "Полученный URL: " + url + "\n" +
-        response.toString());
+        response);
 
-        return response.toString();
+        return response;
 
     }
 
-    public static ArrayList parseJsonListFriends(String jsonAnswer)  {
-
-        /*
-        Метод парсит Json ответ на зпрос friends.get
-        метод getListFiend(На вход принимает id пользователя)
-        В будущем надо сделать универсалньый парсер для большинства json ответов
-        или интегрировать мини парсер в каждый гет запрос..
-         */
-
-        String response = jsonAnswer;
-        List<String> items = new ArrayList<>();
-
-        JSONObject jsonObject = new JSONObject(response);
-        JSONArray jsonArray = jsonObject.getJSONObject("response")
-                .getJSONArray("items");
-        for (int i = 0; i < jsonArray.length(); i++) {
-            items.add(jsonArray.get(i).toString());
-        }
-        return (ArrayList) items;
-    }
-
-    public static String getHistoryDialog (Integer id, Integer count, Integer rev) throws IOException {
+    public static String getHistoryDialog (Integer id, Integer count, Integer rev) throws IOException, InterruptedException {
 
         /*
         Метод возвращает историю сообщений с выбранным пользователем
@@ -218,37 +246,15 @@ public class Api_vk {
                 "&rev=" + URLEncoder.encode(rev.toString(), "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
+        String response = sendHttp(url, "GET");
 
         System.out.println("[getHistoryDialog]" + "\n" + "Полученный URL: " + url + "\n" + response.toString());
 
-        return response.toString();
+        return response;
     }
 
     public static String searchString (String str, String peer_id, String date,
-                                       Integer offset, Integer count , Boolean unRead) throws IOException {
+                                       Integer offset, Integer count , Boolean unRead) throws IOException, InterruptedException {
         /*
         Метод ищет строку (str) в входящих сообщениях
         Работает по только параметр str(q), для всех остальных надо делать проверку
@@ -265,37 +271,16 @@ public class Api_vk {
                 "&count=" + URLEncoder.encode(count.toString(), "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
+        String response = sendHttp(url, "GET");
 
         System.out.println("[searchString]" +" Подстрока: " + str + "\n" + "Не обработанный ответ на запрос messages.search: " + "\n" +
                 "Полученный URL: " + url + "\n" +
-                response.toString());
+                response);
 
-        return response.toString();
+        return response;
     }
 
-    public static void getLongPollServer (Integer ip_version) throws IOException {
+    public static void getLongPollServer (Integer ip_version) throws IOException, InterruptedException {
 
         /**
         messages.getLongPollServer
@@ -312,38 +297,17 @@ public class Api_vk {
                 "unread=" + URLEncoder.encode(ip_version.toString(), "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+        String response = sendHttp(url, "GET");
 
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        JSONObject jsonObject = new JSONObject(response.toString());
+        JSONObject jsonObject = new JSONObject(response);
 
 
         /**Если токен для отправки сообщений не верный
         */
-        if (response.toString().contains("\"error_code\":5")) {
+        if (response.contains("\"error_code\":5")) {
             System.out.println("[getLongPollServer]" +  "\n" + "Invalid access_token (4)" + "\n" +
                     "Полученный URL: " + url + "\n" +
-                    response.toString());
+                    response);
                 getLongPollServer(3);
         }
 
@@ -359,7 +323,7 @@ public class Api_vk {
     }
 
     public static String getEvents (String key, String server, Integer ts, Integer wait)
-            throws IOException {
+            throws IOException, InterruptedException {
 
         /*
         Возможно входные параметры стоит сменить на следующие параметры:
@@ -380,20 +344,7 @@ public class Api_vk {
 
         System.out.println("[getEvents] started......" + " wait " + wait.toString()  + " sec" );
 
-
-        obj = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-        connection.setRequestMethod("GET");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
+        String response = sendHttp(url, "GET");
 
         System.out.println("[getEvents]" +  "\n" + "Не обработанный ответ на запрос: " + "\n" +
                 "Полученный URL: " + url + "\n" +
@@ -404,12 +355,11 @@ public class Api_vk {
                 setTs(jsonObject.getInt("ts"));
             }
 
-        return  response.toString();
+        return  response;
     }
 
 
-
-    public static String getDialogs(Integer count, Integer unread) throws IOException {
+    public static String getDialogs(Integer count, Integer unread) throws IOException, InterruptedException {
 
         /*
         Параметр count определяет сколько сообщений минимум или максимум мы вернём
@@ -426,33 +376,12 @@ public class Api_vk {
                 "&count=" + URLEncoder.encode(count.toString(), "UTF8") +
                 "&v=5.52&access_token=" + accessToken;
 
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+        String response = sendHttp(url, "GET");
 
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        return response.toString();
+        return response;
     }
 
-    public static String checkUnreadChat(Integer offset, Integer count, String filter, Integer extended, String fields) throws IOException {
+    public static String checkUnreadChat(Integer offset, Integer count, String filter, Integer extended, String fields) throws IOException, InterruptedException {
 
         //Метод возвращает список бесед пользователя
         //ссылка на документацию:
@@ -471,38 +400,16 @@ public class Api_vk {
             e.printStackTrace();
         }
 
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
+        String response = sendHttp(url, "GET");
 
         System.out.println("[checkUnreadChat]" + "\nURL: " + url +
         "\n" + "response: " + response);
 
-        return response.toString();
+        return response;
     }
 
 
-    public static String getMessagesUploadServer (String type, String peer_id) throws IOException {
+    public static String getMessagesUploadServer (String type, String peer_id) throws IOException, InterruptedException {
 
         /*
         Метод получает сервер для загрузки документа типа doc или audio_message
@@ -519,33 +426,11 @@ public class Api_vk {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-        URL obj = null;
-        try {
-            obj = new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-
-        try {
-            connection.setRequestMethod("GET");
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
+        String response = sendHttp(url, "GET");
 
         System.out.println("[getMessagesUploadServer] " + "\n" + "Ответ сервера : " + response.toString());
 
-        JSONObject jsonObject = new JSONObject(response.toString());
+        JSONObject jsonObject = new JSONObject(response);
 
         return jsonObject.getJSONObject("response").get("upload_url").toString();
     }
@@ -579,7 +464,7 @@ public class Api_vk {
         return jsonObject.get("file").toString();
     }
 
-    public static String docSave (String file) throws IOException {
+    public static String docSave (String file) throws IOException, InterruptedException {
 
         Integer id;
         Integer owner_id;
@@ -588,26 +473,13 @@ public class Api_vk {
         String url = "https://api.vk.com/method/docs.save?" +
                 "file=" + file +
                 "&access_token=" + accessTokenForDocs +
-                "&v=5.63";
+                "&v=5.84";
 
-
-        URL obj = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-        connection.setRequestMethod("GET");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
+        String response = sendHttp(url, "GET");
 
         System.out.println("[docSave] response: " + response );
 
-        JSONObject rootJson = new JSONObject(response.toString());
+        JSONObject rootJson = new JSONObject(response);
         JSONObject jsonObj  = rootJson.getJSONArray("response").getJSONObject(0);
 
         id = jsonObj.getInt("id");

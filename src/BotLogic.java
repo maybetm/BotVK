@@ -5,9 +5,9 @@ import java.util.UUID;
 public class BotLogic {
 
 
-    private static Integer countEvents = 0;
 
-    public static void main(String text, String event) throws NullPointerException {
+
+    public static void main(String text, String event)  {
 
         /*
         В конечном итоге, этот метод должен быть точкой входа в логику бота а все методы внутри класс должны быть приватными
@@ -48,7 +48,7 @@ public class BotLogic {
         String srv = Api_vk.getMessagesUploadServer("audio_message",  peer_id.toString());
         String doc = Api_vk.loadAudioMessage(srv, fileName);
         String nameDoc = Api_vk.docSave(doc);
-        Api_vk.send("..", peer_id.toString(), 0, 0, nameDoc, "");
+        Api_vk.send(text, peer_id.toString(), 0, 0, nameDoc, "");
 
         System.out.println("[sendVoiceMessage] " + " text of message: " + text +  "\n file of audio name: " + fileName + "\n" + "text of voice message: " + text );
 
