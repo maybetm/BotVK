@@ -49,6 +49,31 @@ public class Api_vk {
     }
 
 
+
+    private static String sendHttp (String url, String type) throws IOException {
+
+        //Метод отправляет http запрос
+        //String url;
+        //@type = GET or POST
+
+        URL obj = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+
+        connection.setRequestMethod(type);
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return response.toString();
+    }
+
+
     public static String send(String message, String id, Integer peerState, Integer id_message, String attachment, String forward_messages) throws IOException {
 
         /*
@@ -270,9 +295,6 @@ public class Api_vk {
         return response.toString();
     }
 
-
-
-
     public static void getLongPollServer (Integer ip_version) throws IOException {
 
         /**
@@ -322,13 +344,7 @@ public class Api_vk {
             System.out.println("[getLongPollServer]" +  "\n" + "Invalid access_token (4)" + "\n" +
                     "Полученный URL: " + url + "\n" +
                     response.toString());
-            try {
-                Thread.sleep(60000);
                 getLongPollServer(3);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
         }
 
 
@@ -391,55 +407,6 @@ public class Api_vk {
         return  response.toString();
     }
 
-
-    public static ArrayList parseEvents (String answer) {
-        /*
-
-        !!ПЕРЕНЕСТИ ВСЕ МЕТОДЫ ДЛЯ ПАРСИНГА В ОТДЕЛЬНЫЕ КЛАССЫ!!
-
-        Метод-парсер обрабатывает результат метода getEvents()
-        answer - строка с ответом метода getEvents()
-        mod - модификатор, отвечает за данные, которые следует искать в входной строке
-
-        Код нового сообщения 4
-                               ,49 - входящее сообщение
-                               ,17 - входящее для подписоты и всех остальных (подписчик и рандомная страница)
-                               ,1 - Входящее для левого челика
-        ???                    ,532497 - входящее с телефона
-        ???                    ,972 - входящее с телефона, создатель конференции
-                               ,35 - исходящее сообщение
-
-         */
-        String response = answer;
-        String bodyMessage;
-
-        try {
-            response = response.substring( response.indexOf( "[4" ), response.lastIndexOf("]"));
-                System.out.println(response);
-            response = response.replace( "[", "" )
-                                            .replace( "]", "" );
-                System.out.println(response);
-            bodyMessage = response.substring( response.indexOf( "\"" ) + 1, response.lastIndexOf( "\"," ) );
-
-            response = response.replace( "\"" + bodyMessage + "\",", "" );
-
-            System.out.println( "result of getEvents(): " + response + "\n" +
-            "bodyMessage= " + bodyMessage);
-
-
-
-            List<String> items = new ArrayList(Arrays.asList(response.split(",")));
-            items.add(bodyMessage);
-
-            System.out.println("[parseEvents]: Массив параметров: " + items);
-            return (ArrayList) items;
-
-
-        } catch (StringIndexOutOfBoundsException ex) {
-            System.out.println( "Метод getEvents() не вернул строку удовлетворяющею условиям." );
-            return null;
-        }
-    }
 
 
     public static String getDialogs(Integer count, Integer unread) throws IOException {
@@ -637,6 +604,8 @@ public class Api_vk {
             response.append(inputLine);
         }
         in.close();
+
+        System.out.println("[docSave] response: " + response );
 
         JSONObject rootJson = new JSONObject(response.toString());
         JSONObject jsonObj  = rootJson.getJSONArray("response").getJSONObject(0);

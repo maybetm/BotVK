@@ -7,85 +7,65 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
-public class Controller extends java.lang.Thread {
-
-
-
-    public void run (){
+public class Controller extends Thread {
 
 
-        try {
-                           Controller.checkUnreadMessages();
-            for (;;) {
+    @Override
+    public void run() {
+           try {
+                Controller.checkUnreadMessages();
+                for (;;) {
 
+                    String answer = Api_vk.getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(), 60);  Thread.sleep(1000);
 
-                String answer = Api_vk.getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(), 60);
+                    JSONArray messagesList = new JSONObject(getInfoInputMessages(answer)).getJSONArray("items");
 
-                if (answer.contains("{\"failed\":2}")) {
-                    System.out.println("Connection failed. Error: <failed : 2>");
-                    Api_vk.getLongPollServer( 3 );
-                    answer =  new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),60);
-                 }
+                    System.out.println("[Controller] size of messagesList: " + messagesList.length());
 
-                ArrayList eventsList = Api_vk.parseEvents(answer);
+                    if (messagesList.length() != 0) {
 
-                if ((eventsList != null) ) {
+                        for (int i = 0; i < messagesList.length(); i++) {
+                            Integer iFinal = i;
+                            Thread subThreadBot = new Thread(() -> {
 
-                   if (eventsList.get(2).equals("49") || (eventsList.get(2).equals("532497")) || eventsList.get(2).equals("33") || eventsList.get(2).equals("1") || eventsList.get(2).equals("17")) {
+                                System.out.println("[Controller] new message: " + messagesList.getJSONArray(iFinal).get(5));
+                                try {
+                                    BotLogic.sendVoiceMessage(messagesList.getJSONArray(iFinal).getString(5),    //
+                                            messagesList.getJSONArray(iFinal).getInt(3)); //id чата
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                // BotLogic.main(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).toString());
+                            });
 
-                    Thread subThreadBot = new Thread(() -> {
-                        System.out.println("[Thread_bot] bodyMessage = " + eventsList.get(eventsList.size() - 1).toString());
-                        try {
-                            sleep(setDelay());
-                            System.out.println("[Thread_bot] delay = " + BotLogic.getCountEvents());
-                            BotLogic.sendVoiceMessage(eventsList.get(eventsList.size() - 1).toString(), eventsList.get(3).toString());
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            subThreadBot.start();
                         }
-                    });
-                       subThreadBot.start();
-                   }
-
-                } else {
-                    System.out.println("Not new events, eventsList = " + eventsList);
+                    }
                 }
-                
+            } catch (IOException e) {
+                e.printStackTrace();
 
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-
-    }
-}
-    public static Integer setDelay () {
-
-        //Возвращает время задержки
-        //в зависимости от значения переменной countEvents
-        //Это необходимо, чтобы распределить нагрузку, так как одновременно можно отправить только 3 сообщения
-        //из-за ограничений SpeechKit и api вконтакте
-
-        if (BotLogic.getCountEvents() < 3) {
-            return 1000 * BotLogic.getCountEvents();
-        }
-
-        if (BotLogic.getCountEvents() >= 3) {
-            return 2000 * BotLogic.getCountEvents();
-        }
-
-        return null;
     }
 
-    public static boolean checkUnreadMessages () throws IOException {
+
+
+    private static boolean checkUnreadMessages () throws IOException {
 
         /*
         Метод проверяет количество непрочитанных сообщений
         Если они есть, то на каждое сообщение отвечает и возвращает истину
         Если непрочитанных сообщений нет, то возвращает false
+
+        ВЫЗЫВАЕТ replyToUnread()
          */
+
         Integer countUnreadChat;
 
         String response =  Api_vk.checkUnreadChat(0,20, "unread", 1, "profiles");
@@ -144,7 +124,7 @@ public class Controller extends java.lang.Thread {
                         System.out.println("items[" + i + "]: " + jsonArray.getJSONObject(i).getString("body"));
 
                 try {
-                    sleep(delayInMilisec);
+                    Thread.sleep(delayInMilisec);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -171,6 +151,61 @@ public class Controller extends java.lang.Thread {
             countAnswer ++;
         }
 
+    }
+
+
+    private static String getInfoInputMessages(String answer) {
+        /*
+
+        !!ПЕРЕНЕСТИ МЕТОД В КОНТРОЛЛЕР, ПОТОМУ ЧТО ПРОСТО РАБОТАЕТ С ДАННЫМИ ПОЛУЧЕННЫМИ БЛАГОДАРЯ МЕТОДАМ ИЗ API_VK
+
+        МЕТОД СОЗДАН ЧТОБЫ ОБРАБАТЫВАТЬ ИНФОРМАЦИЮ ИЗ МЕТОДА Api_vk.getEvents()
+
+        Метод-парсер обрабатывает результат метода getEvents()
+        answer - строка с ответом метода getEvents()
+        mod - модификатор, отвечает за данные, которые следует искать в входной строке
+
+        ВОЗВРАЩАЕТ СПИСОК СОБЫТИЙ С КОДОМ ВХОДЯЩИХ СООБЩЕНИЙ,
+                            PARAMETER[0] = 4
+                            PARAMETER[2] = CONSTANTS.incomingMessagesID[]
+
+
+        Код нового сообщения 4 - eventsArray.get(0).equals(4)
+        Код входящего сообщения - Constants.incomingMessagesID.equals(eventsArray.get(2)
+
+        incomingMessagesID - Массив идентификаторов для новый входящих сообщений.
+
+         */
+        String response = answer;
+
+        ArrayList<Object> items = new ArrayList<>();
+
+        JSONObject listOfMessages = new JSONObject();
+
+        JSONObject jsonObject = new JSONObject(answer);
+
+        JSONArray jsonArray = jsonObject.getJSONArray("updates");
+
+        System.out.println("[getInfoInputMessages] jsonArray (" + jsonArray.length() + ") : " + jsonArray );
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+
+            System.out.println("[getInfoInputMessages] jsonArray (" + i + ") : " + jsonArray.get(i));
+
+            JSONArray eventsArray = (JSONArray) jsonArray.get(i);
+            System.out.println("[getInfoInputMessages] eventsArray: " +eventsArray.get(0));
+
+            if ((eventsArray.getInt(0) == 4) && (IntStream.of(Constants.incomingMessagesID).anyMatch(x -> x == eventsArray.getInt(2)))) {
+                System.out.println("[getInfoInputMessages] Adding an array to items: " + jsonArray.get(i));
+                items.add((jsonArray.get(i)));
+            }
+
+        }
+        listOfMessages.put("items", items);
+        System.out.println("[getInfoInputMessages] items: " + items);
+        System.out.println("[getInfoInputMessages] listOfMessages: " + listOfMessages);
+
+        return listOfMessages.toString();
     }
 
 }

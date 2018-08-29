@@ -37,14 +37,16 @@ public class Application {
         startBotConfigs();
 
         LongPollServer();
-        new Controller().run();
+        new Controller().setDaemon(true);
+        new Controller().start();
+
   }
 
     public static void LongPollServer () throws IOException {
 
         new Api_vk().getLongPollServer( 3 );
-        String response =  new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),5);
-        Api_vk.parseEvents(response);
+        new Api_vk().getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(),5);
+
     }
 
     public static void startBotConfigs() {

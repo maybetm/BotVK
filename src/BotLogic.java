@@ -4,20 +4,13 @@ import java.util.UUID;
 
 public class BotLogic {
 
-    public static synchronized void setCountEvents(Integer countEvents) {
-       BotLogic.countEvents = countEvents;
-    }
-
-    public static synchronized Integer getCountEvents() {
-        return countEvents;
-    }
 
     private static Integer countEvents = 0;
 
-    public static String getAnswer (String message) throws NullPointerException {
+    public static void main(String text, String event) throws NullPointerException {
 
         /*
-        В конечном итоге, этот метод должен быть точкой входа в логику бота
+        В конечном итоге, этот метод должен быть точкой входа в логику бота а все методы внутри класс должны быть приватными
         *******************************************************************
         Функция работает в тестовом режиме
         Возвращает два ответа:
@@ -29,22 +22,21 @@ public class BotLogic {
          */
         String mes = null;
 
-        if (message.contains("Лукас,") && message.contains("тест")) {
-                return "Тест успешно пройден.";
+        if (text.contains("Лукас,") && text.contains("тест")) {
+               // return "Тест успешно пройден.";
         } else {
-                return "Ключевых слов в сообщении не найдено. Текст сообщения: " + message ;
+               // return "Ключевых слов в сообщении не найдено. Текст сообщения: " + text ;
         }
 
     }
 
-    public static void sendVoiceMessage (String text, String peer_id) throws IOException {
+    public static void sendVoiceMessage (String text, Integer peer_id) throws IOException, InterruptedException {
 
         /*
         Отправляет голосовое сообщение
         Сперва метод generateVoice генерирует голосовое сообщение и сохраняет его в файл
         Потом череда методов загружает документ на сервер и отправляет сообщение с этим документом пользователю
          */
-        BotLogic.setCountEvents( BotLogic.getCountEvents() + 1 );
 
         Settings settings = new Settings();
 
@@ -52,18 +44,16 @@ public class BotLogic {
         String fileName = UUID.randomUUID().toString();
 
         SpechKit.generateVoice(text, settings.getSpeechTypeSpeaker(), settings.getSpeechMotion(), settings.getSpeechFormatAudio(), settings.getSpeechLang(), fileName);
-        String srv = Api_vk.getMessagesUploadServer("audio_message",  peer_id);
+
+        String srv = Api_vk.getMessagesUploadServer("audio_message",  peer_id.toString());
         String doc = Api_vk.loadAudioMessage(srv, fileName);
         String nameDoc = Api_vk.docSave(doc);
-        Api_vk.send("..", peer_id, 0, 0, nameDoc, "");
+        Api_vk.send("..", peer_id.toString(), 0, 0, nameDoc, "");
 
         System.out.println("[sendVoiceMessage] " + " text of message: " + text +  "\n file of audio name: " + fileName + "\n" + "text of voice message: " + text );
 
         //удаляем файл
         deleteFile(fileName);
-
-        BotLogic.setCountEvents( BotLogic.getCountEvents() - 1 );
-
     }
 
     public static void deleteFile (String fileName) {
