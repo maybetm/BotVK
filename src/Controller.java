@@ -40,7 +40,7 @@ public class Controller extends Thread {
                                 try {
                                     BotLogic.sendVoiceMessage(messagesList.getJSONArray(iFinal).getString(5),    //
                                             messagesList.getJSONArray(iFinal).getInt(3)); //id чата
-                                   Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
+                                //   Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 } catch (InterruptedException e) {
