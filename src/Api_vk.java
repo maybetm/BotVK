@@ -114,7 +114,7 @@ public class Api_vk {
     public static String send(String message, String id, Integer peerState, Integer id_message, String attachment, String forward_messages) throws IOException, InterruptedException {
 
         /*
-        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
+        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 3 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
 
         Без URLEncoder.encode строка не верно складывается
         следовательно запрос не отрабатывает
@@ -159,17 +159,11 @@ public class Api_vk {
     public static String send(String message, Integer id) throws IOException, InterruptedException {
 
         /*
-        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
+        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 3 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
 
         Без URLEncoder.encode строка не верно складывается
         следовательно запрос не отрабатывает
-        Если peerState = 0, то сообщение отправляется юзеру;
-             peerState = 1, То сообщение оправляется в групповой чат;
-             peetState = 2, то сообщение отправляется сообществу.
-
-        id_messsage - параметр необходим для ответа на сообщение юзера
-
-        Если type = 0, то отправляем обычное сооб
+        
         */
 
         Integer peer_id = id;
