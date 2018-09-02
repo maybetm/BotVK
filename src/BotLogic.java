@@ -48,7 +48,7 @@ public class BotLogic {
         String srv = Api_vk.getMessagesUploadServer("audio_message",  peer_id.toString());
         String doc = Api_vk.loadAudioMessage(srv, fileName);
         String nameDoc = Api_vk.docSave(doc);
-        Api_vk.send(text, peer_id.toString(), 0, 0, nameDoc, "");
+        Api_vk.send("", peer_id.toString(), 0, 0, nameDoc, "");
 
         System.out.println("[sendVoiceMessage] " + " text of message: " + text +  "\n file of audio name: " + fileName + "\n" + "text of voice message: " + text );
 

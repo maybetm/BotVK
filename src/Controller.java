@@ -18,7 +18,7 @@ public class Controller extends Thread {
                 Controller.checkUnreadMessages();
                 for (;;) {
 
-                    String answer = Api_vk.getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(), 60);  Thread.sleep(1000);
+                    String answer = Api_vk.getEvents( Api_vk.getKey(), Api_vk.getServer(), Api_vk.getTs(), 60);
 
                     if (answer.contains("{\"failed\":2}")) {
                         System.out.println("[Controller] Connection failed. Error: <failed : 2>");
@@ -40,7 +40,7 @@ public class Controller extends Thread {
                                 try {
                                     BotLogic.sendVoiceMessage(messagesList.getJSONArray(iFinal).getString(5),    //
                                             messagesList.getJSONArray(iFinal).getInt(3)); //id чата
-                                //   Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
+                                  // Api_vk.send(messagesList.getJSONArray(iFinal).getString(5), messagesList.getJSONArray(iFinal).getInt(3));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 } catch (InterruptedException e) {
@@ -146,7 +146,7 @@ public class Controller extends Thread {
             String doc = Api_vk.loadAudioMessage(srv, fileName);
             String nameDoc = Api_vk.docSave(doc);
             Api_vk.send("", user_id.toString(), 0, 0, nameDoc,
-                    new String(String.valueOf(jsonArray.getJSONObject(i).getInt("id"))));
+                    "");
 
             System.out.println("[sendVoiceMessage] " + " text of message: " +
                           jsonArray.getJSONObject(i).getString("body") +

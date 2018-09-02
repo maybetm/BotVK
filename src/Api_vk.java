@@ -61,23 +61,6 @@ public class Api_vk {
         //String url;
         //@type = GET or POST
 
-
-
-        SEMAPHORE.acquire();
-
-        Integer streamNumber = -1;
-
-        synchronized (spaceOfRequests) {
-            for (int i = 0; i < Constants.maxRequestCount; i++){
-                if (!spaceOfRequests[i]) {
-                    spaceOfRequests[i] = true;
-                    streamNumber = i;
-                    System.out.printf("[sendHttp] Stream take place [№%d]", i);
-                    break;
-                }
-            }
-        }
-
         System.out.println("[sendHttp] Start request processing");
 
         URL obj = new URL(url);
@@ -96,16 +79,6 @@ public class Api_vk {
 
         System.out.println("[sendHttp] Request processing completed");
 
-
-        synchronized (spaceOfRequests) {
-            //освобождаем место
-            spaceOfRequests[streamNumber] = false;
-        }
-
-        SEMAPHORE.release();
-        System.out.printf("[sendHttp] The thread frees the place [№%d]", streamNumber);
-
-
         return response.toString();
 
     }
@@ -114,7 +87,7 @@ public class Api_vk {
     public static String send(String message, String id, Integer peerState, Integer id_message, String attachment, String forward_messages) throws IOException, InterruptedException {
 
         /*
-        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 3 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
+        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
 
         Без URLEncoder.encode строка не верно складывается
         следовательно запрос не отрабатывает
@@ -159,11 +132,17 @@ public class Api_vk {
     public static String send(String message, Integer id) throws IOException, InterruptedException {
 
         /*
-        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 3 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
+        МГНОВЕННО МОЖНО ОТПРАВИТЬ ТОЛЬКО 4 СООБЩЕНИЯ ОДНОМУ ПОЛЬЗОВАТЕЛЮ ИЛИ В ЧАТ
 
         Без URLEncoder.encode строка не верно складывается
         следовательно запрос не отрабатывает
-        
+        Если peerState = 0, то сообщение отправляется юзеру;
+             peerState = 1, То сообщение оправляется в групповой чат;
+             peetState = 2, то сообщение отправляется сообществу.
+
+        id_messsage - параметр необходим для ответа на сообщение юзера
+
+        Если type = 0, то отправляем обычное сооб
         */
 
         Integer peer_id = id;
