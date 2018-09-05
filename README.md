@@ -16,7 +16,7 @@ BotVK
 
     http://mvnrepository.com/artifact/org.json/json/20180130
 
-  MultipartUtility.java: класс для отправки сообщений. Немножко отредаченный под свои нужды.
+  MultipartUtility.java: Используется часть функционала для создания файла нужного формата. 
 
     http://www.codejava.net/java-se/networking/upload-files-by-sending-multipart-request-programmatically
 
