@@ -22,6 +22,8 @@ BotVK
 
   Речевые технологии SpeechKit: облачное решение от Яндекса для синтеза речи.
 
-    https://webasr.yandex.net/ttsdemo.html - форма для тестов;
-    https://tech.yandex.ru/speechkit/cloud/doc/guide/common/speechkit-common-tts-http-request-docpage/ - документация.
+    Форма для тестов: 
+    https://webasr.yandex.net/ttsdemo.html
+    Документация:
+    https://tech.yandex.ru/speechkit/cloud/doc/guide/common/speechkit-common-tts-http-request-docpage/
 
