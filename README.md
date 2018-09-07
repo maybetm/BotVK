@@ -25,5 +25,5 @@ BotVK
     Форма для тестов: 
     https://webasr.yandex.net/ttsdemo.html
     Документация:
-    https://tech.yandex.ru/speechkit/cloud/doc/guide/common/speechkit-common-tts-http-request-docpage/
+    https://tech.yandex.ru/speechkit/cloud/doc/guide/common/speechkit-common-tts-http-request-docpage
 
