@@ -162,9 +162,7 @@ public class Controller extends Thread {
 
 
     private static String getInfoInputMessages(String answer) {
-        /*
-
-        !!ПЕРЕНЕСТИ МЕТОД В КОНТРОЛЛЕР, ПОТОМУ ЧТО ПРОСТО РАБОТАЕТ С ДАННЫМИ ПОЛУЧЕННЫМИ БЛАГОДАРЯ МЕТОДАМ ИЗ API_VK
+        /*      
 
         МЕТОД СОЗДАН ЧТОБЫ ОБРАБАТЫВАТЬ ИНФОРМАЦИЮ ИЗ МЕТОДА Api_vk.getEvents()
 
